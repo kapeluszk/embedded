@@ -1,70 +1,48 @@
-# import RPi.GPIO as GPIO
-# import time
-# import w1thermsensor
-#
-# # GPIO setup
-# sensor = w1thermsensor.W1ThermSensor()
-# # water_level_sensor = 5
-# # GPIO.setmode(GPIO.BCM)
-# # GPIO.setup(water_level_sensor, GPIO.IN)
-#
-# # Main loop
-# while True:
-#     temperature = sensor.get_temperature()
-#     print(temperature)
-#     # print(GPIO.input(water_level_sensor))
-#     time.sleep(1)
-
+import threading
 import smbus
-import time
+import sqlite3
+from data_collector import data_collection
+from data_displayer import data_display
+from db_handler import init_db
+from adc_handler import enable_adc
 
-# Ustawienia I2C
-I2C_BUS = 1  # Numer magistrali I2C (zazwyczaj 1 dla Raspberry Pi)
-I2C_ADDR = 0x10  # Adres HAT-u na magistrali I2C
-
-# Rejestry ADC
-REG_ADC_CTRL = 0x0E
-REG_ADC_VAL1 = 0x0F
-REG_ADC_VAL2 = 0x11
-REG_ADC_CHANNELS = {
-    "A0": REG_ADC_VAL1,
-    "A1": REG_ADC_VAL2,
-    # Można dodać inne kanały tutaj
-}
-
-
-def enable_adc(bus):
-    """Włącza funkcję ADC na płytce."""
-    bus.write_byte_data(I2C_ADDR, REG_ADC_CTRL, 0x01)
-
-
-def read_adc(bus, channel):
-    """Odczytuje wartość ADC z wybranego kanału."""
-    if channel not in REG_ADC_CHANNELS:
-        raise ValueError("Nieznany kanał ADC: {}".format(channel))
-
-    reg = REG_ADC_CHANNELS[channel]
-    data = bus.read_i2c_block_data(I2C_ADDR, reg, 2)
-    return (data[0] << 8) | data[1]
-
+# I2C settings
+I2C_BUS = 1  # I2C bus number
+I2C_ADDR = 0x10  # HAT I2C address
 
 if __name__ == "__main__":
-    # Inicjalizacja magistrali I2C
+    # DB initialization
+    with sqlite3.connect('measurements.db') as conn:
+        cur = conn.cursor()
+        init_db(conn,cur)
+
+    # I2C bus initialization
     bus = smbus.SMBus(I2C_BUS)
 
     try:
-        # Włącz ADC
+        # Enable ADC
         enable_adc(bus)
-        print("ADC włączony.")
+        print("ADC enabled.")
 
-        # Odczytuj dane z ADC co 1 sekundę
-        while True:
-            value = read_adc(bus, "A0")
-            print(f"Wartość ADC z kanału A0: {value}")
-            time.sleep(1)
+        # Create mutex
+        db_lock = threading.Lock()
+
+        # Create threads
+        collector_thread = threading.Thread(target=data_collection, args=(bus,db_lock))
+        displayer_thread = threading.Thread(target=data_display, args=(db_lock,))
+
+        # Start threads
+        collector_thread.start()
+        displayer_thread.start()
+
+        # Wait for threads to finish
+        collector_thread.join()
+        displayer_thread.join()
     except KeyboardInterrupt:
-        print("Zatrzymano przez użytkownika.")
+        print("Stopped by user.")
     except Exception as e:
-        print(f"Błąd: {e}")
+        print(f"Error: {e}")
     finally:
         bus.close()
+        print("I2C bus closed.")
+        print("Exiting program.")
