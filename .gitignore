@@ -1,0 +1,8 @@
+#ignore virtual environment
+/env
+
+#ignore database 
+*.db
+
+#ignore pycache
+/__pycache__
