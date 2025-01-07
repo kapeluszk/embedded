@@ -29,11 +29,13 @@ if __name__ == "__main__":
 
         # Create threads
         collector_thread = threading.Thread(target=data_collection, args=(bus,db_lock))
-        displayer_thread = threading.Thread(target=data_display, args=(db_lock,))
+        # displayer_thread = threading.Thread(target=data_display, args=(db_lock,))
 
         # Start threads
         collector_thread.start()
-        displayer_thread.start()
+        # displayer_thread.start()
+
+        data_display()
 
         # Wait for threads to finish
         collector_thread.join()
