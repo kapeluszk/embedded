@@ -1,0 +1,90 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #121212;
+    color: #e0e0e0;
+    margin: 0;
+    padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #ffffff;
+}
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #1e1e1e;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.dropdown-container, .input-container {
+    margin-bottom: 20px;
+}
+
+.dccDropdown {
+    width: 50%;
+    background-color: #2e2e2e;
+    color: #e0e0e0;
+    border: 1px solid #444;
+}
+
+./* Zmiana tła dropdowna na ciemne i koloru czcionki na jasny */
+
+.dccDropdown .Select-placeholder {
+    background-color: #2e2e2e;
+    color: #e0e0e0;
+}
+
+.dccDropdown .Select-value {
+    background-color: #2e2e2e;
+    color: #e0e0e0;
+}
+.dccDropdown .Select-control {
+    background-color: #2e2e2e;
+    color: #e0e0e0;
+    border: 1px solid #444;
+}
+
+.dccDropdown .Select-menu-outer {
+    background-color: #2e2e2e;
+    color: #e0e0e0;
+}
+
+.dccDropdown .Select-option {
+    background-color: #2e2e2e;
+    color: #e0e0e0;
+}
+
+.dccDropdown .Select-option.is-focused {
+    background-color: #444;
+    color: #e0e0e0;
+}
+
+.dccDropdown .Select-option.is-selected {
+    background-color: #555;
+    color: #e0e0e0;
+}
+
+.input-container {
+    display: flex;
+    align-items: center;
+}
+
+.input-label {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.dccInput {
+    width: 100px;
+    background-color: #2e2e2e;
+    color: #e0e0e0;
+    border: 1px solid #444;
+}
+
+.dccGraph {
+    border: 1px solid #444;
+    padding: 10px;
+    background-color: #1e1e1e;
+}

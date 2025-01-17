@@ -5,6 +5,7 @@ from db_handler import add_measurement
 
 def data_collection(bus, db_lock):
     while True:
+        print("im alive")
         try:
             temperature, illuminance, moisture = sensors.measure(bus)
             with db_lock:

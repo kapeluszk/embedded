@@ -37,6 +37,7 @@ def measure(bus):
     total_temp = []
     total_ilu = []
     total_moist = []
+    print("Measuring...")
     for _ in range(8):
         total_temp.append(thermometer.get_temperature())
         total_ilu.append(read_adc(bus,"A0"))
