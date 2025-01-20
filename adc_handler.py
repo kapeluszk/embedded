@@ -24,9 +24,11 @@ def enable_adc(bus):
 
 
 def read_adc(bus, channel):
+    # check if the channel is valid
     if channel not in REG_ADC_CHANNELS:
         raise ValueError("Unknown ADC channel: {}".format(channel))
 
+    # read the data from the i2c bus
     reg = REG_ADC_CHANNELS[channel]
     data = bus.read_i2c_block_data(I2C_ADDR, reg, 2)
 
@@ -39,5 +41,9 @@ def read_adc(bus, channel):
     data[1] = 0x0000 to 0x00FF (no change)
     
     so we will return the whole i2c data as one value
+    
+    this was done referencing the datasheet of the HAT
     """
     return (data[0] << 8) | data[1]
+
+

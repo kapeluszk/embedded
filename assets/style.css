@@ -24,46 +24,14 @@ h1, h2, h3, h4, h5, h6 {
 
 .dccDropdown {
     width: 50%;
-    background-color: #2e2e2e;
-    color: #e0e0e0;
+    /*color: #e0e0e0 !important;*/
+    background-color: #e0e0e0 !important;
     border: 1px solid #444;
 }
 
-./* Zmiana tła dropdowna na ciemne i koloru czcionki na jasny */
-
-.dccDropdown .Select-placeholder {
-    background-color: #2e2e2e;
-    color: #e0e0e0;
-}
-
-.dccDropdown .Select-value {
-    background-color: #2e2e2e;
-    color: #e0e0e0;
-}
-.dccDropdown .Select-control {
-    background-color: #2e2e2e;
-    color: #e0e0e0;
-    border: 1px solid #444;
-}
-
-.dccDropdown .Select-menu-outer {
-    background-color: #2e2e2e;
-    color: #e0e0e0;
-}
-
-.dccDropdown .Select-option {
-    background-color: #2e2e2e;
-    color: #e0e0e0;
-}
-
-.dccDropdown .Select-option.is-focused {
-    background-color: #444;
-    color: #e0e0e0;
-}
-
-.dccDropdown .Select-option.is-selected {
-    background-color: #555;
-    color: #e0e0e0;
+.dccDropdown .dropdown-item {
+    background-color: #2e2e2e; /* Tło opcji */
+    color: #e0e0e0; /* Kolor tekstu */
 }
 
 .input-container {
@@ -87,4 +55,14 @@ h1, h2, h3, h4, h5, h6 {
     border: 1px solid #444;
     padding: 10px;
     background-color: #1e1e1e;
+}
+
+.note {
+    font-size: 0.9em;
+    color: #888;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #2e2e2e;
+    border-left: 4px solid #444;
 }

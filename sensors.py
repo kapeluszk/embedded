@@ -1,25 +1,29 @@
-import RPi.GPIO as GPIO
 import time
 import w1thermsensor
 import math
 from db_handler import add_measurement
 from adc_handler import read_adc
 
-# GPIO setup
+# Initialize the sensor
 thermometer = w1thermsensor.W1ThermSensor()
 
+###### Helper functions ######
+
+# Calculate the average of the list
 def calculate_avg(tab):
     if len(tab) < 2:
         return sum(tab) / len(tab) if tab else 0
     tab = sorted(tab)[1:-1]
     return sum(tab)/len(tab)
 
+# Normalize the temperature
 def moisture_normalization(moisture):
     air_dry = 3100 # Read from sensor when is exposed to air
     water = 1350 # Read from sensor when is in water
 
     return round((moisture - air_dry) / (water - air_dry) * 100,2)
 
+# Normalize the illuminance
 def illuminance_normalization(ilu):
     direct_flashlight = 3100  # Read from sensor when is exposed to direct flashlight
 
@@ -34,6 +38,7 @@ def illuminance_normalization(ilu):
 
 
 def measure(bus):
+    # making a table for each sensor - measure 8 times and take the average
     total_temp = []
     total_ilu = []
     total_moist = []
@@ -44,7 +49,8 @@ def measure(bus):
         total_moist.append(read_adc(bus,"A1"))
         time.sleep(1)
 
-    sanitized_moist = moisture_normalization(calculate_avg(total_moist))
+    # Normalize the values
+    normalized_moist = moisture_normalization(calculate_avg(total_moist))
     normalized_ilu = illuminance_normalization(calculate_avg(total_ilu))
 
-    return round(calculate_avg(total_temp),2),normalized_ilu,sanitized_moist
+    return round(calculate_avg(total_temp),2),normalized_ilu,normalized_moist

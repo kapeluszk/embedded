@@ -1,5 +1,6 @@
 import sqlite3
 
+# Initialize the database
 def init_db(conn,cur):
     cur.execute('''
         CREATE TABLE IF NOT EXISTS Measurements (
@@ -33,6 +34,9 @@ def init_db(conn,cur):
     INSERT OR IGNORE INTO Plant_references (plant_name, temperature, illuminance, moisture) VALUES ('Rhubarb', 21.7, 30, 4.75);
     ''')
     conn.commit()
+
+
+################## Define functions to interact with the database ##################
 
 def add_measurement(conn,cur, temperature, illuminance, moisture):
     try:

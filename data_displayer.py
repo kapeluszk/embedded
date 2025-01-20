@@ -9,12 +9,14 @@ import time
 
 app = dash.Dash(__name__)
 
+# Set the default theme for the plots
 pio.templates.default = 'plotly_dark'
 
-def get_measurements():
+###### Helper functions for fetching data from the database ######
+def get_measurements(days):
     with sqlite3.connect('measurements.db') as conn:
         cur = conn.cursor()
-        measurements = fetch_measurements(cur, 7)
+        measurements = fetch_measurements(cur, days)
     return measurements
 
 def get_target_moisture():
@@ -23,23 +25,26 @@ def get_target_moisture():
         target_moisture = fetch_target_moisture(cur)
     return target_moisture[0] if target_moisture else 0
 
+
+###### HTML layout for the dashboard ######
+
 app.layout = html.Div(className='container', children=[
     html.H1('Plant Monitoring Dashboard'),
     html.Div(className='dropdown-container', children=[
-        html.Label('Select Plant:', className='input-label'),
+        html.Label('Select Plant:', className='input-label', title='Select reference plant to have something to compare to'),
         dcc.Dropdown(
             id='plant-dropdown',
             options=[
                 {'label': 'Tomato', 'value': 'Tomato'},
                 {'label': 'Rhubarb', 'value': 'Rhubarb'},
-                # Dodaj więcej opcji dla innych roślin
+                # add more plants here
             ],
             value='Tomato',
             className='dccDropdown'
         ),
     ]),
     html.Div(className='input-container', children=[
-        html.Label('Target Moisture:', className='input-label'),
+        html.Label('Target Moisture:', className='input-label', title='Target moisture level for the plant'),
         dcc.Input(
             id='target-moisture-input',
             type='number',
@@ -49,6 +54,19 @@ app.layout = html.Div(className='container', children=[
             className='dccInput'
         ),
     ]),
+    html.Div(className='input-container', children=[
+        html.Label('Days Range:', className='input-label', title='Number of days to display'),
+        dcc.Input(
+            id='days-input',
+            type='number',
+            min=1,
+            max=30,
+            value=7,
+            className='dccInput'
+        ),
+    ]),
+    html.Div("Note: The dashboard updates every 5 minutes.", className='note'),
+    html.Br(),
     dcc.Graph(id='temperature-graph', className='dccGraph'),
     dcc.Graph(id='illuminance-graph', className='dccGraph'),
     dcc.Graph(id='moisture-graph', className='dccGraph'),
@@ -59,18 +77,22 @@ app.layout = html.Div(className='container', children=[
     )
 ])
 
+###### Callback function to update the graphs ######
+
 @app.callback(
     Output('temperature-graph', 'figure'),
     Output('illuminance-graph', 'figure'),
     Output('moisture-graph', 'figure'),
     Input('interval-component', 'n_intervals'),
     Input('plant-dropdown', 'value'),
-    Input('target-moisture-input', 'value')
+    Input('target-moisture-input', 'value'),
+    Input('days-input', 'value')
 )
-def update_graphs(n, plant_name, target_moisture):
-    measurements = get_measurements()
+def update_graphs(n, plant_name, target_moisture, days):
+    measurements = get_measurements(days)
     df = pd.DataFrame(measurements, columns=['id', 'timestamp', 'temperature', 'illuminance', 'moisture'])
 
+    # Fetch reference values and update target moisture
     with sqlite3.connect('measurements.db') as conn:
         cur = conn.cursor()
         ref_values = fetch_plant_references(cur, plant_name)
@@ -80,20 +102,23 @@ def update_graphs(n, plant_name, target_moisture):
     if ref_values is None:
         ref_values = [0, 0, 0]
 
+    # temperature graph
     temp_fig = px.line(df, x='timestamp', y='temperature', title='Temperature over Time', labels={'temperature': 'Temperature'})
     temp_fig.add_scatter(x=df['timestamp'], y=df['temperature'], mode='lines', name='Temperature')
     temp_fig.add_scatter(x=df['timestamp'], y=[ref_values[0]] * len(df), mode='lines', name=f'{plant_name} Reference')
 
+    # illuminance graph
     ilu_fig = px.line(df, x='timestamp', y='illuminance', title='Illuminance over Time', labels={'illuminance': 'Illuminance'})
     ilu_fig.add_scatter(x=df['timestamp'], y=df['illuminance'], mode='lines', name='Illuminance')
     ilu_fig.add_scatter(x=df['timestamp'], y=[ref_values[1]] * len(df), mode='lines', name=f'{plant_name} Reference')
 
+    # moisture graph
     moist_fig = px.line(df, x='timestamp', y='moisture', title='Moisture over Time', labels={'moisture': 'Moisture'})
     moist_fig.add_scatter(x=df['timestamp'], y=df['moisture'], mode='lines', name='Moisture')
     moist_fig.add_scatter(x=df['timestamp'], y=[ref_values[2]] * len(df), mode='lines', name=f'{plant_name} Reference')
     moist_fig.add_scatter(x=df['timestamp'], y=[target_moisture_value] * len(df), mode='lines', name='Target Moisture')
-    
+
     return temp_fig, ilu_fig, moist_fig
 
 def data_display():
-    app.run_server(host='0.0.0.0', port=8050, debug=True)
+    app.run_server(host='0.0.0.0', port=8050, debug=False)

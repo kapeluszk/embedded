@@ -5,7 +5,7 @@ from db_handler import add_measurement
 
 def data_collection(bus, db_lock):
     while True:
-        print("im alive")
+        # try to measure the data and insert it into the database
         try:
             temperature, illuminance, moisture = sensors.measure(bus)
             with db_lock:
